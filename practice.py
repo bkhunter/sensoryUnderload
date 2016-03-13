@@ -55,7 +55,7 @@ class obstacle():
 
     def whoosh(self):
         vol = self.whooshSound.get_volume()
-        incr = 0.05
+        incr = 0.01
         tot = vol+incr
         #print tot
         self.whooshSound.set_volume(tot)
@@ -80,12 +80,13 @@ negative = pygame.mixer.Sound('assets/GETBONKED.wav')
 
 # Duck
 duck = obstacle(pygame.K_DOWN,'assets/flyby.wav',100)
-#up = obstacle(pygame.K_UP,'assets/somefile',100)
+flock = obstacle(pygame.K_DOWN,'assets/birdflap.wav',150)
+up = obstacle(pygame.K_UP,'assets/wallsmash.wav',100)
 
 left = obstacle(pygame.K_RIGHT,'assets/pannedLeft.wav',100)
 right = obstacle(pygame.K_LEFT,'assets/pannedRight.wav',100)
 
-obstacles.extend([duck,left,right])
+obstacles.extend([duck,left,right,flock,up])
 gameKeys.extend([pygame.K_RIGHT, pygame.K_DOWN, pygame.K_LEFT,pygame.K_UP])
 
 isActive = False
@@ -110,16 +111,15 @@ def end():
     pygame.quit()
     sys.exit()
     
-print pygame.mixer.get_num_channels()
-
+counter = 0
+pushed = False
 
 # -----------Game Loop ---------------
 
 while True:
 
-    if not isActive and (winCount % 90 == 0): 
+    if not isActive and (winCount % 120 == 0): 
         obstacleIndex = random.randint(0,len(obstacles)-1)
-        #obstacleIndex = 0
         obstacle = obstacles[obstacleIndex]
         window = obstacle.windowSize
         obstacle.playSound(0.0)
@@ -132,33 +132,82 @@ while True:
         obstacle.whoosh()
     
     keys = pygame.key.get_pressed()
+
     if isActive:
-        if keys[obstacle.keyToPress]:
-            if isActive and (window > 0):# and window < 50):
-                score+=1
-                print score
-                isActive = False
-                positive.play()
-            else:
-                isActive = False
-                lives -= 1
-                negative.play()
-        else:
+
+        if obstacle.path == 'assets/birdflap.wav':
+
+            # If they press the key, uncrement the counter
+            if keys[obstacle.keyToPress]:
+                pushed = True
+                counter += 1
+
+            # If they press the wrong key, lose a life
             for key in gameKeys:
                 if (not key == obstacle.keyToPress) and (keys[key]):
+                    print 'yall goofed'
                     lives-=1
                     isActive = False
+                    pushed = False
                     negative.play()
                     break
+
+            # If they release the key, check that they held it long enough
+            if pushed:
+                for event in pygame.event.get():
+                    if event.type == KEYUP:
+                        print counter
+                        if event.key == pygame.K_DOWN:
+                            print 'yall released'
+                            if counter > 70:
+                                print 'yall held it long enough'
+                                print obstacle.path
+                                isActive = False
+                                pushed = False
+                                score += 1
+                                positive.play()
+                                counter = 0
+                                break
+                            elif obstacle.path == 'assets/birdflap.wav':
+                                print 'not long enough yall'
+                                isActive = False
+                                pushed = False
+                                lives -= 1
+                                negative.play()
+                                counter = 0
+                                break
+            
+        else:    
+            if keys[obstacle.keyToPress]:
+                if isActive and (window > 0):# and window < 50):
+                    print 'yall hit it'
+                    score+=1
+                    isActive = False
+                    positive.play()
+                else:
+                    print 'yall missed'
+                    isActive = False
+                    lives -= 1
+                    negative.play()
+            else:
+                for key in gameKeys:
+                    if (not key == obstacle.keyToPress) and (keys[key]):
+                        print 'yall pressed the wrong key'
+                        lives-=1
+                        isActive = False
+                        negative.play()
+                        break
         
     if keys[pygame.K_ESCAPE]:
         end()
             
     if isActive and window <= 0:
+        negative.play()
         isActive = False
         lives -= 1
 
     if lives == 0:
+        print 'yall suck'
         end()
 
     pygame.display.flip()
