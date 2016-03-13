@@ -8,14 +8,13 @@ pygame.init()
 
 screen = pygame.display.set_mode((450, 450))
 clock = pygame.time.Clock()
-
 sound_lib = {}
 
 pygame.display.set_caption('Hello World!')
 
 #-------------sound stuff--------------------
 
-songs = ['Raining.mp3','punk.mp3']
+songs = ['jungleMusic.mp3','punk.mp3']
 currentSong = 'assets/' + songs[0]
 pygame.mixer.music.load(currentSong)
 SONG_END = pygame.USEREVENT + 1 # USEREVENT has the highest value of the enum
@@ -56,9 +55,9 @@ class obstacle():
 
     def whoosh(self):
         vol = self.whooshSound.get_volume()
-        incr = 0.01
+        incr = 0.05
         tot = vol+incr
-        print tot
+        #print tot
         self.whooshSound.set_volume(tot)
         
     def playSound(self,volume):
@@ -74,12 +73,20 @@ class obstacle():
         
 
 obstacles = [];
+gameKeys = []
 
-boingPoing = obstacle(pygame.K_LEFT,'assets/boing_poing.wav',100)
-Ahem = obstacle(pygame.K_RIGHT,'assets/test.wav',100)
+positive = pygame.mixer.Sound('assets/pickup.wav')
+negative = pygame.mixer.Sound('assets/GETBONKED.wav')
 
-obstacles.append(boingPoing)
-obstacles.append(Ahem)
+# Duck
+duck = obstacle(pygame.K_DOWN,'assets/flyby.wav',100)
+#up = obstacle(pygame.K_UP,'assets/somefile',100)
+
+left = obstacle(pygame.K_RIGHT,'assets/pannedLeft.wav',100)
+right = obstacle(pygame.K_LEFT,'assets/pannedRight.wav',100)
+
+obstacles.extend([duck,left,right])
+gameKeys.extend([pygame.K_RIGHT, pygame.K_DOWN, pygame.K_LEFT,pygame.K_UP])
 
 isActive = False
 winCount = 1
@@ -89,6 +96,8 @@ whooshSound = 0
 obstacleKey = ''
 lives = 3
 score = 0
+
+#positive.play()
 
 def whoosh():
     vol = whooshSound.get_volume()
@@ -101,51 +110,56 @@ def end():
     pygame.quit()
     sys.exit()
     
+print pygame.mixer.get_num_channels()
+
 
 # -----------Game Loop ---------------
 
-
 while True:
 
-
-    if not isActive and (winCount % 300 == 0): 
+    if not isActive and (winCount % 90 == 0): 
         obstacleIndex = random.randint(0,len(obstacles)-1)
+        #obstacleIndex = 0
         obstacle = obstacles[obstacleIndex]
         window = obstacle.windowSize
         obstacle.playSound(0.0)
         isActive = True
         
-
-
     winCount += 1
+
     if isActive:
         window -= 1
-
-    if isActive:
         obstacle.whoosh()
     
     keys = pygame.key.get_pressed()
     if isActive:
         if keys[obstacle.keyToPress]:
-            if isActive and (window > 0 and window < 50):
+            if isActive and (window > 0):# and window < 50):
                 score+=1
                 print score
                 isActive = False
-
-            elif window <= 0:
-                print 'you lose!'
-                end()
+                positive.play()
             else:
+                isActive = False
                 lives -= 1
+                negative.play()
+        else:
+            for key in gameKeys:
+                if (not key == obstacle.keyToPress) and (keys[key]):
+                    lives-=1
+                    isActive = False
+                    negative.play()
+                    break
+        
     if keys[pygame.K_ESCAPE]:
         end()
             
     if isActive and window <= 0:
+        isActive = False
         lives -= 1
 
     if lives == 0:
         end()
-
 
     pygame.display.flip()
     
