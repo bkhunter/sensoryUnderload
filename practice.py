@@ -8,26 +8,10 @@ pygame.init()
 
 screen = pygame.display.set_mode((450, 450))
 clock = pygame.time.Clock()
-isBlue = True
-x = 30
-y = 30
-size = 60
 
 sound_lib = {}
-image_lib = {}
 
 pygame.display.set_caption('Hello World!')
-
-#-----------image/background stuff -------
-
-def get_image(path):
-    global image_lib
-    image = image_lib.get(path)
-    if image is None:
-        image = pygame.image.load(path).convert()
-        image_lib[path] = image
-    return image
-
 
 #-------------sound stuff--------------------
 
@@ -36,7 +20,8 @@ currentSong = 'assets/' + songs[0]
 pygame.mixer.music.load(currentSong)
 SONG_END = pygame.USEREVENT + 1 # USEREVENT has the highest value of the enum
 pygame.mixer.music.set_endevent(SONG_END)
-#pygame.mixer.music.play()
+pygame.mixer.music.set_volume(0.05)
+pygame.mixer.music.play()
 #pygame.mixer.music.queue('assets/crash.mp3')
 
 def play_a_different_song():
@@ -60,25 +45,50 @@ def playSound(path):
 
 
 #---------- functions ------------------- 
-def deduct(coord):
-    coord -= 6
-    if coord < 0:
-        return 0
-    return coord
 
-def increase(coord):
-    coord += 6
-    if coord > (450-size):
-        return (450-size)
-    return coord
+class obstacle():
+
+    def __init__(self,keyToPress,path,windowSize):
+        self.keyToPress = keyToPress
+        self.path = path
+        self.windowSize = windowSize
+        self.whooshSound = ''
+
+    def whoosh(self):
+        vol = self.whooshSound.get_volume()
+        incr = 0.01
+        tot = vol+incr
+        print tot
+        self.whooshSound.set_volume(tot)
+        
+    def playSound(self,volume):
+
+        global sound_lib
+        sound = sound_lib.get(self.path)
+        if sound is None:
+            sound = pygame.mixer.Sound(self.path)
+            sound_lib[self.path] = sound
+        sound.set_volume(volume)
+        sound.play()
+        self.whooshSound = sound
+        
+
+obstacles = [];
+
+boingPoing = obstacle(pygame.K_LEFT,'assets/boing_poing.wav',100)
+Ahem = obstacle(pygame.K_RIGHT,'assets/test.wav',100)
+
+obstacles.append(boingPoing)
+obstacles.append(Ahem)
 
 isActive = False
-winCount = 1000
+winCount = 1
 window = 130
 windowMax = 130.0
 whooshSound = 0
-
-hit = False
+obstacleKey = ''
+lives = 3
+score = 0
 
 def whoosh():
     vol = whooshSound.get_volume()
@@ -93,39 +103,49 @@ def end():
     
 
 # -----------Game Loop ---------------
+
+
 while True:
 
-    winCount -= 1
+
+    if not isActive and (winCount % 300 == 0): 
+        obstacleIndex = random.randint(0,len(obstacles)-1)
+        obstacle = obstacles[obstacleIndex]
+        window = obstacle.windowSize
+        obstacle.playSound(0.0)
+        isActive = True
+        
+
+
+    winCount += 1
     if isActive:
         window -= 1
 
     if isActive:
-        whoosh()
+        obstacle.whoosh()
     
-    if winCount == 900:
-        isActive = True
-        whooshSound = playSound('assets/Raining.wav')
-
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_SPACE]:
-        if isActive and (window > 0 and window < 50):
-            print 'you win'
-            end()
-        elif window <= 0:
-            print 'you lose!'
-            end()
-        else:
-            print 'you lose'
-            print window
-            end()
+    if isActive:
+        if keys[obstacle.keyToPress]:
+            if isActive and (window > 0 and window < 50):
+                score+=1
+                print score
+                isActive = False
+
+            elif window <= 0:
+                print 'you lose!'
+                end()
+            else:
+                lives -= 1
+    if keys[pygame.K_ESCAPE]:
+        end()
             
-    if window <= 0:
-        print 'you lose'
+    if isActive and window <= 0:
+        lives -= 1
+
+    if lives == 0:
         end()
 
-    if winCount == 0:
-        print 'you lose'
-        end()
 
     pygame.display.flip()
     
