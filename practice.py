@@ -54,7 +54,9 @@ def playSound(path):
     if sound is None:
         sound = pygame.mixer.Sound(path)
         sound_lib[path] = sound
+    sound.set_volume(0)
     sound.play()
+    return sound
 
 
 #---------- functions ------------------- 
@@ -70,48 +72,65 @@ def increase(coord):
         return (450-size)
     return coord
 
+isActive = False
+winCount = 1000
+window = 130
+windowMax = 130.0
+whooshSound = 0
+
+hit = False
+
+def whoosh():
+    vol = whooshSound.get_volume()
+    incr = 0.01
+    tot = vol+incr
+    print tot
+    whooshSound.set_volume(tot)
+
+def end():
+    pygame.quit()
+    sys.exit()
+    
+
 # -----------Game Loop ---------------
 while True:
+
+    winCount -= 1
+    if isActive:
+        window -= 1
+
+    if isActive:
+        whoosh()
     
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                isBlue = not isBlue
-                playSound('assets/ahem.wav')
-            elif event.key == pygame.K_RETURN:
-                play_a_different_song()
-                #pygame.mixer.music.stop()
-        if event.type == SONG_END:
-            print "happy days"
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
+    if winCount == 900:
+        isActive = True
+        whooshSound = playSound('assets/Raining.wav')
 
-    pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_UP]: y = deduct(y)
-    if pressed[pygame.K_DOWN]: y = increase(y)
-    if pressed[pygame.K_LEFT]: x = deduct(x)
-    if pressed[pygame.K_RIGHT]: x = increase(x)
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_SPACE]:
+        if isActive and (window > 0 and window < 50):
+            print 'you win'
+            end()
+        elif window <= 0:
+            print 'you lose!'
+            end()
+        else:
+            print 'you lose'
+            print window
+            end()
+            
+    if window <= 0:
+        print 'you lose'
+        end()
 
-    if isBlue:
-        color = (0,128,255)
-    else:
-        color = (255,100,0)
+    if winCount == 0:
+        print 'you lose'
+        end()
 
-    # up_pressed = pygame.get_pressed()[pygame.K_UP]
-   
-   # screen.fill((255, 255, 255))
-    screen.blit(get_image('assets/Revived_forest.png'), (-50,0))
-
-    #screen = surface    Colour          (x,y,width,height)
-    pygame.draw.rect(screen, color, pygame.Rect(x,y,size,size))
-    pygame.draw.circle(screen,(120,40,100), (150,150), 50)
-
-    #does the same thing
-    #pygame.display.update()
     pygame.display.flip()
     
     #60 FPS
-    clock.tick(60)
+    clock.tick(30)
+    pygame.event.pump()
 
 
