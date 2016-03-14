@@ -6,7 +6,7 @@ from pygame.locals import *
 #-----------initializers-----------------
 pygame.init()
 
-screen = pygame.display.set_mode((450, 450))
+screen = pygame.display.set_mode((1200, 700))
 clock = pygame.time.Clock()
 sound_lib = {}
 
@@ -143,7 +143,6 @@ while True:
                 counter += 1
             elif counter > 70:
                 print 'yall held it long enough'
-                print obstacle.path
                 isActive = False
                 pushed = False
                 score += 1
@@ -197,7 +196,7 @@ while True:
         lives -= 1
 
     if lives == 0:
-        print 'yall suck'
+        print 'yall lost'
         end()
 
     pygame.display.flip()
