@@ -10,4 +10,6 @@ Navigate your way through the jungle! Use the arrow keys to move, corresponding 
   * crumbling: press up to jump over the hole
   * whoosh: press down to avoid 
 
+!!! MAKE SURE YOUR HEADPHONES ARE ON CORRECTLY !!!
+
 the longer you live the higher your score!!!
