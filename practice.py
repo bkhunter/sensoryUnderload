@@ -77,14 +77,16 @@ gameKeys = []
 
 positive = pygame.mixer.Sound('assets/pickup.wav')
 negative = pygame.mixer.Sound('assets/GETBONKED.wav')
+negative.set_volume(0.6)
+positive.set_volume(0.6)
 
 # Duck
-duck = obstacle(pygame.K_DOWN,'assets/flyby.wav',100)
+duck = obstacle(pygame.K_DOWN,'assets/flyby.wav',60)
 flock = obstacle(pygame.K_DOWN,'assets/birdflap.wav',150)
 up = obstacle(pygame.K_UP,'assets/wallsmash.wav',100)
 
-left = obstacle(pygame.K_RIGHT,'assets/pannedLeft.wav',100)
-right = obstacle(pygame.K_LEFT,'assets/pannedRight.wav',100)
+left = obstacle(pygame.K_RIGHT,'assets/pannedLeft.wav',90)
+right = obstacle(pygame.K_LEFT,'assets/pannedRight.wav',90)
 
 obstacles.extend([duck,left,right,flock,up])
 gameKeys.extend([pygame.K_RIGHT, pygame.K_DOWN, pygame.K_LEFT,pygame.K_UP])
@@ -97,6 +99,7 @@ whooshSound = 0
 obstacleKey = ''
 lives = 3
 score = 0
+
 
 #positive.play()
 
@@ -114,7 +117,7 @@ def end():
 counter = 0
 pushed = False
 timeToWait = 120;
-
+decrementmoment = True
 
 # -----------Game Loop ---------------
 
@@ -172,6 +175,7 @@ while True:
             if keys[obstacle.keyToPress]:
                 if isActive and (window > 0):# and window < 50):
                     print 'yall hit it'
+                    decrementMoment = True
                     score+=1
                     isActive = False
                     positive.play()
@@ -201,8 +205,9 @@ while True:
         print 'yall lost'
         end()
 
-    if score % 5 == 0 and score != 0:
+    if score % 5 == 0 and score != 0 and decrementMoment == True:
         timeToWait -=30
+        decrementMoment = False
         print timeToWait
 
     if score == 20:
