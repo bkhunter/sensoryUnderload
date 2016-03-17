@@ -113,12 +113,14 @@ def end():
     
 counter = 0
 pushed = False
+timeToWait = 120;
+
 
 # -----------Game Loop ---------------
 
 while True:
 
-    if not isActive and (winCount % 120 == 0): 
+    if not isActive and (winCount % timeToWait == 0): 
         obstacleIndex = random.randint(0,len(obstacles)-1)
         obstacle = obstacles[obstacleIndex]
         window = obstacle.windowSize
@@ -208,6 +210,14 @@ while True:
 
     if lives == 0:
         print 'yall suck'
+        end()
+
+    if score % 5 == 0 and score != 0:
+        timeToWait -=30
+        print timeToWait
+
+    if score == 20:
+        print 'you win!'
         end()
 
     pygame.display.flip()
