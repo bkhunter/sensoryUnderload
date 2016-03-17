@@ -57,7 +57,6 @@ class obstacle():
         vol = self.whooshSound.get_volume()
         incr = 0.01
         tot = vol+incr
-        #print tot
         self.whooshSound.set_volume(tot)
         
     def playSound(self,volume):
@@ -107,7 +106,6 @@ def whoosh():
     vol = whooshSound.get_volume()
     incr = 0.01
     tot = vol+incr
-    print tot
     whooshSound.set_volume(tot)
 
 def end():
@@ -147,47 +145,32 @@ while True:
                 pushed = True
                 counter += 1
             elif counter > 70:
-                print 'yall held it long enough'
                 isActive = False
                 pushed = False
                 score += 1
                 positive.play()
                 counter = 0
             elif window < 50:
-                print 'not long enough yall'
                 isActive = False
                 pushed = False
                 lives -= 1
                 negative.play()
                 counter = 0
-
-            # # If they press the wrong key, lose a life
-            # for key in gameKeys:
-            #     if (not key == obstacle.keyToPress) and (keys[key]):
-            #         print 'yall goofed'
-            #         lives-=1
-            #         isActive = False
-            #         pushed = False
-            #         negative.play()
-            #         break
             
         else:    
             if keys[obstacle.keyToPress]:
                 if isActive and (window > 0):# and window < 50):
-                    print 'yall hit it'
                     decrementMoment = True
                     score+=1
                     isActive = False
                     positive.play()
                 else:
-                    print 'yall missed'
                     isActive = False
                     lives -= 1
                     negative.play()
             else:
                 for key in gameKeys:
                     if (not key == obstacle.keyToPress) and (keys[key]):
-                        print 'yall pressed the wrong key'
                         lives-=1
                         isActive = False
                         negative.play()
@@ -202,16 +185,13 @@ while True:
         lives -= 1
 
     if lives == 0:
-        print 'yall lost'
         end()
 
     if score % 5 == 0 and score != 0 and decrementMoment == True:
         timeToWait -=30
         decrementMoment = False
-        print timeToWait
 
     if score == 20:
-        print 'you win!'
         end()
 
     pygame.display.flip()
