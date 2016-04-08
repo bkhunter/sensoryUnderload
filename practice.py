@@ -10,7 +10,7 @@ screen = pygame.display.set_mode((1200, 700))
 clock = pygame.time.Clock()
 sound_lib = {}
 
-pygame.display.set_caption('Hello World!')
+pygame.display.set_caption('Sensory Underload')
 
 #-------------sound stuff--------------------
 
