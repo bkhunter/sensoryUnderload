@@ -1,7 +1,3 @@
-###sensoryUnderload
-
-Design challenge for INTD450 University of Alberta
-
 #Description:
 
 Navigate your way through the jungle! Use the arrow keys to move, corresponding to different sounds:
